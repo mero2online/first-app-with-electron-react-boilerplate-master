@@ -44,7 +44,11 @@
         {
           "name": "@electron-forge/maker-squirrel",
           "config": {
-            "name": "electron_react_app"
+            "name": "electron_react_app",
+            "loadingGif": "media/loading.gif",
+            "exe": "my-app",
+            "iconUrl": "media/app.ico",
+            "setupIcon": "media/app.ico"
           }
         },
         {

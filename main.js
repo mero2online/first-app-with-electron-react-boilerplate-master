@@ -14,7 +14,8 @@ function createWindow() {
       worldSafeExecuteJavaScript: true,
       contextIsolation: true,
       preload: path.join(__dirname, 'preload.js')
-    }
+    },
+    icon: path.join(__dirname, 'src/media/app.ico')
   })
 
   win.loadFile('index.html');

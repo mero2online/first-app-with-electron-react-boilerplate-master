@@ -1,7 +1,7 @@
 {
   "name": "electron-react-app",
   "version": "1.0.0",
-  "description": "",
+  "description": "electron-react-app",
   "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -11,7 +11,7 @@
     "make": "electron-forge make"
   },
   "keywords": [],
-  "author": "",
+  "author": "mero2online",
   "license": "ISC",
   "dependencies": {
     "electron-squirrel-startup": "^1.0.0",
@@ -44,11 +44,9 @@
         {
           "name": "@electron-forge/maker-squirrel",
           "config": {
-            "name": "electron_react_app",
-            "loadingGif": "media/loading.gif",
-            "exe": "my-app",
-            "iconUrl": "media/app.ico",
-            "setupIcon": "media/app.ico"
+            "name": "name_electron_react_app",
+            "title": "title_electron_react_app",
+            "loadingGif": "src/media/loading.gif"
           }
         },
         {

@@ -1,5 +1,10 @@
-
-const { BrowserWindow, app, ipcMain, Notification } = require('electron');
+const {
+  BrowserWindow,
+  app,
+  ipcMain,
+  Notification,
+  nativeTheme,
+} = require('electron');
 const path = require('path');
 
 const isDev = !app.isPackaged;
@@ -8,27 +13,41 @@ function createWindow() {
   const win = new BrowserWindow({
     width: 1200,
     height: 800,
-    backgroundColor: "white",
+    backgroundColor: 'white',
     webPreferences: {
       nodeIntegration: false,
       worldSafeExecuteJavaScript: true,
       contextIsolation: true,
-      preload: path.join(__dirname, 'preload.js')
+      preload: path.join(__dirname, 'preload.js'),
     },
-    icon: path.join(__dirname, 'src/media/app.ico')
-  })
+    icon: path.join(__dirname, 'src/media/app.ico'),
+  });
 
   win.loadFile('index.html');
 }
 
 if (isDev) {
   require('electron-reload')(__dirname, {
-    electron: path.join(__dirname, 'node_modules', '.bin', 'electron')
-  })
+    electron: path.join(__dirname, 'node_modules', '.bin', 'electron'),
+  });
 }
 
-ipcMain.on('notify', (_, message) => {
-  new Notification({title: 'Notifiation', body: message}).show();
-})
+app.whenReady().then(createWindow);
 
-app.whenReady().then(createWindow)
+ipcMain.on('notify', (event, message) => {
+  new Notification({ title: 'Notification', body: message }).show();
+  event.reply('notify-reply', 'reply-from-notify');
+});
+
+ipcMain.handle('dark-mode:toggle', () => {
+  if (nativeTheme.shouldUseDarkColors) {
+    nativeTheme.themeSource = 'light';
+  } else {
+    nativeTheme.themeSource = 'dark';
+  }
+  return nativeTheme.shouldUseDarkColors;
+});
+
+ipcMain.handle('dark-mode:system', () => {
+  nativeTheme.themeSource = 'system';
+});

@@ -1,16 +1,25 @@
 import React, { useState } from 'react';
+import LoadingSpinner from './LoadingSpinner';
 
 export default function App() {
   const [currentDarkMode, setCurrentDarkMode] = useState('System');
   const [result, setResult] = useState('');
-  const [resultBat, setResultBat] = useState('');
+  const [loading, setLoading] = useState(false);
 
   window.api.receive('fromMain', (data) => {
-    setResultBat(data);
+    if (data.runBatStatus) {
+      setResult(data.runBatStatus);
+    }
+    if (data.loading) {
+      setLoading(data.loading);
+    }
   });
 
   const handleNotify = () => {
-    electron.notificationApi.sendNotification('My custom notification!');
+    setResult('');
+    setTimeout(() => {
+      electron.notificationApi.sendNotification('My custom notification!');
+    }, 500);
   };
 
   const handleNotifyTwo = async () => {
@@ -38,19 +47,61 @@ export default function App() {
     return <strong>{currentDarkMode}</strong>;
   };
 
+  const renderLoadingSpinner = () => {
+    if (loading === 'TRUE') {
+      return <LoadingSpinner />;
+    } else {
+      return null;
+    }
+  };
+
   return (
-    <>
-      <h1>I am App Component!!!</h1>
-      <button onClick={handleNotify}>Notify</button>
-      <button onClick={handleNotifyTwo}>Notify Two</button>
-      <button onClick={handleRunBat}>Run Bat</button>
+    <div className='container text-center'>
+      <h1>App Component</h1>
       <p>Current theme source: {renderCurrentMode()}</p>
-      <div>
-        <button onClick={handleToggle}>Toggle Dark Mode</button>
-        <button onClick={handleSystem}>Reset to System Theme</button>
+      <div className='container mt-3'>
+        <button
+          type='button'
+          className='btn btn-primary ms-3'
+          onClick={handleToggle}
+        >
+          Toggle Dark Mode
+        </button>
+        <button
+          type='button'
+          className='btn btn-primary ms-3'
+          onClick={handleSystem}
+        >
+          Reset to System Theme
+        </button>
       </div>
-      <h2>{result}</h2>
-      <h2>{resultBat}</h2>
-    </>
+      <hr className='divider' />
+      <div className='container mt-3'>
+        <button
+          type='button'
+          className='btn btn-primary ms-3'
+          onClick={handleNotify}
+        >
+          Notify
+        </button>
+        <button
+          type='button'
+          className='btn btn-primary ms-3'
+          onClick={handleNotifyTwo}
+        >
+          Notify Two
+        </button>
+        <button
+          type='button'
+          className='btn btn-primary ms-3'
+          onClick={handleRunBat}
+        >
+          Run Bat
+        </button>
+        <h2>{result}</h2>
+      </div>
+      <hr className='divider' />
+      {renderLoadingSpinner()}
+    </div>
   );
 }

@@ -45,7 +45,7 @@ ipcMain.on('notify', (event, message) => {
 
 ipcMain.handle('notify-two', (event, message) => {
   new Notification({ title: 'Notification', body: message }).show();
-  return 'done';
+  return 'Done';
 });
 
 ipcMain.handle('dark-mode:toggle', () => {
@@ -65,7 +65,8 @@ ipcMain.handle('run-bat', () => {
   let batPath = path.join(__dirname, 'script.bat');
   let ls = process.spawn(batPath);
   ls.stdout.on('data', (data) => {
-    win.webContents.send('fromMain', 'Started');
+    win.webContents.send('fromMain', { loading: 'TRUE' });
+    win.webContents.send('fromMain', { runBatStatus: 'Started' });
     const buf = Buffer.from(data, 'utf8').toString();
     console.log(buf);
   });
@@ -76,10 +77,11 @@ ipcMain.handle('run-bat', () => {
   ls.on('close', (code) => {
     if (code == 0) {
       console.log('Finished');
-      win.webContents.send('fromMain', 'Finished');
+      win.webContents.send('fromMain', { runBatStatus: 'Finished' });
+      win.webContents.send('fromMain', { loading: 'FALSE' });
     } else {
       console.log('EXIT CODE', code);
-      win.webContents.send('fromMain', `EXIT CODE ${code}`);
+      win.webContents.send('fromMain', { runBatStatus: `EXIT CODE ${code}` });
     }
   });
 });

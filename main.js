@@ -6,11 +6,12 @@ const {
   nativeTheme,
 } = require('electron');
 const path = require('path');
-
+const process = require('child_process');
 const isDev = !app.isPackaged;
+let win;
 
 function createWindow() {
-  const win = new BrowserWindow({
+  win = new BrowserWindow({
     width: 1200,
     height: 800,
     backgroundColor: 'white',
@@ -58,4 +59,27 @@ ipcMain.handle('dark-mode:toggle', () => {
 
 ipcMain.handle('dark-mode:system', () => {
   nativeTheme.themeSource = 'system';
+});
+
+ipcMain.handle('run-bat', () => {
+  let batPath = path.join(__dirname, 'script.bat');
+  let ls = process.spawn(batPath);
+  ls.stdout.on('data', (data) => {
+    win.webContents.send('fromMain', 'Started');
+    const buf = Buffer.from(data, 'utf8').toString();
+    console.log(buf);
+  });
+  ls.stderr.on('data', (data) => {
+    const buf = Buffer.from(data, 'utf8').toString();
+    console.log(buf);
+  });
+  ls.on('close', (code) => {
+    if (code == 0) {
+      console.log('Finished');
+      win.webContents.send('fromMain', 'Finished');
+    } else {
+      console.log('EXIT CODE', code);
+      win.webContents.send('fromMain', `EXIT CODE ${code}`);
+    }
+  });
 });

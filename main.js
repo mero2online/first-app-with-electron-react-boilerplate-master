@@ -24,6 +24,9 @@ function createWindow() {
   });
 
   win.loadFile('index.html');
+  if (isDev) {
+    win.webContents.openDevTools();
+  }
 }
 
 if (isDev) {
@@ -37,6 +40,11 @@ app.whenReady().then(createWindow);
 ipcMain.on('notify', (event, message) => {
   new Notification({ title: 'Notification', body: message }).show();
   event.reply('notify-reply', 'reply-from-notify');
+});
+
+ipcMain.handle('notify-two', (event, message) => {
+  new Notification({ title: 'Notification', body: message }).show();
+  return 'done';
 });
 
 ipcMain.handle('dark-mode:toggle', () => {

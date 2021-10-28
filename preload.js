@@ -5,6 +5,9 @@ contextBridge.exposeInMainWorld('electron', {
     sendNotification(message) {
       ipcRenderer.send('notify', message);
     },
+    sendNotificationTwo(message) {
+     return ipcRenderer.invoke('notify-two', message);
+    }
   },
   batteryApi: {},
   filesApi: {},

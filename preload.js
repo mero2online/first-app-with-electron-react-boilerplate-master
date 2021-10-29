@@ -24,7 +24,7 @@ contextBridge.exposeInMainWorld('darkMode', {
 });
 
 contextBridge.exposeInMainWorld('api', {
-  runBat: () => ipcRenderer.invoke('run-bat'),
+  runBat: (batFileName) => ipcRenderer.invoke('run-bat', batFileName),
   receive: (channel, func) => {
     if (channel === 'fromMain') {
       ipcRenderer.on(channel, (event, ...args) => func(...args));

@@ -24,7 +24,11 @@ function Actions() {
   };
 
   const handleRunBat = async () => {
-    await window.api.runBat();
+    await window.api.runBat('script');
+  };
+
+  const handleRunBatLock = async () => {
+    await window.api.runBat('Lock-PC');
   };
 
   return (
@@ -49,6 +53,13 @@ function Actions() {
         onClick={handleRunBat}
       >
         Run Bat
+      </button>
+      <button
+        type='button'
+        className='btn btn-primary ms-3'
+        onClick={handleRunBatLock}
+      >
+        Run Bat Lock-PC
       </button>
       <h2>{result}</h2>
     </div>

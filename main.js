@@ -61,8 +61,8 @@ ipcMain.handle('dark-mode:system', () => {
   nativeTheme.themeSource = 'system';
 });
 
-ipcMain.handle('run-bat', () => {
-  let batPath = path.join(__dirname, 'script.bat');
+ipcMain.handle('run-bat', (event, batFileName) => {
+  let batPath = path.join(__dirname, `src/scripts/${batFileName}.bat`);
   let ls = process.spawn(batPath);
   ls.stdout.on('data', (data) => {
     win.webContents.send('fromMain', { loading: 'TRUE' });

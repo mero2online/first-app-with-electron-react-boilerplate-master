@@ -7,6 +7,8 @@ const {
 } = require('electron');
 const path = require('path');
 const process = require('child_process');
+const fs = require('fs');
+
 const isDev = !app.isPackaged;
 let win;
 
@@ -61,9 +63,58 @@ ipcMain.handle('dark-mode:system', () => {
   nativeTheme.themeSource = 'system';
 });
 
-ipcMain.handle('run-bat', (event, batFileName) => {
-  let batPath = path.join(__dirname, `src/scripts/${batFileName}.bat`);
-  let ls = process.spawn(batPath);
+ipcMain.handle('check-file-exist', (event, fileName) => {
+  let batPath = path.join(__dirname, `src/scripts/${fileName}`);
+
+  if (fs.existsSync(batPath)) {
+    console.log('Found file');
+    return true;
+  } else {
+    console.log('Not Found file');
+    return false;
+  }
+});
+
+ipcMain.handle('delete-file', (event, fileName) => {
+  let batPath = path.join(__dirname, `src/scripts/${fileName}`);
+
+  fs.unlinkSync(batPath, function (err) {
+    if (err) return console.log(err);
+    console.log('file deleted successfully');
+  });
+  return 'deleted';
+});
+
+ipcMain.handle('save-script', (event, fileName, data) => {
+  let scriptsPath = path.join(__dirname, 'src/scripts/');
+  let batPath = path.join(__dirname, `src/scripts/${fileName}`);
+  const finalData = data.replaceAll('{CURRENT_PATH}', scriptsPath);
+  fs.writeFileSync(batPath, finalData);
+  return 'saved';
+});
+
+// let batPath = path.join(__dirname, `src/scripts/${batFileName}`);
+// `schtasks.exe /run /tn "${batFileName}"`
+// `start-process powershell -argument ${batPath} -verb runas`;
+
+ipcMain.handle('run-command', (event, command, shell) => {
+  let scriptsPath = path.join(__dirname, 'src/scripts/');
+  const finalCommand = command.replaceAll('{CURRENT_PATH}', scriptsPath);
+  process.exec(finalCommand, { shell: shell }, (error, stdout, stderr) => {
+    console.log(stdout);
+    console.log(stderr);
+    console.log(error);
+  });
+  return 'finished';
+});
+
+ipcMain.handle('run-script-file', (event, fileName, fileExtension) => {
+  let batPath = path.join(__dirname, `src/scripts/${fileName}${fileExtension}`);
+  let ls =
+    fileExtension === '.ps1'
+      ? process.spawn('powershell.exe', [batPath])
+      : process.spawn(batPath);
+
   ls.stdout.on('data', (data) => {
     win.webContents.send('fromMain', { loading: 'TRUE' });
     win.webContents.send('fromMain', { runBatStatus: 'Started' });

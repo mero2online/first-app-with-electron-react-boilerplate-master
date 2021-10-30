@@ -24,7 +24,11 @@ contextBridge.exposeInMainWorld('darkMode', {
 });
 
 contextBridge.exposeInMainWorld('api', {
-  runBat: (batFileName) => ipcRenderer.invoke('run-bat', batFileName),
+  checkFileExist: (...args) => ipcRenderer.invoke('check-file-exist', ...args),
+  deleteFile: (...args) => ipcRenderer.invoke('delete-file', ...args),
+  runScriptFile: (...args) => ipcRenderer.invoke('run-script-file', ...args),
+  saveScript: (...args) => ipcRenderer.invoke('save-script', ...args),
+  runCommand: (...args) => ipcRenderer.invoke('run-command', ...args),
   receive: (channel, func) => {
     if (channel === 'fromMain') {
       ipcRenderer.on(channel, (event, ...args) => func(...args));

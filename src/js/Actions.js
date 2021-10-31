@@ -36,26 +36,39 @@ function Actions() {
   }, []);
 
   const checkTask = async () => {
-    let batFileExist = await window.api.checkFileExist(
+    let elevatedBatFileExist = await window.api.checkFileExist(
       'Electron-cmd-elevated.bat'
     );
-    let psFileExist = await window.api.checkFileExist(
+    let elevatedAddPsFileExist = await window.api.checkFileExist(
       'Electron-powershell-elevated-Add.ps1'
     );
+    let elevatedAddRunPsFileExist = await window.api.checkFileExist(
+      'Electron-powershell-elevated-Add-Run.ps1'
+    );
 
-    if (!batFileExist) {
+    if (!elevatedBatFileExist) {
       await window.api.saveScript('Electron-cmd-elevated.bat', '');
     }
-    if (!psFileExist) {
+    if (!elevatedAddPsFileExist) {
       await window.api.saveScript(
         'Electron-powershell-elevated-Add.ps1',
-        `$Action= New-ScheduledTaskAction -Execute "cmd.exe" -Argument '/c start "" "{CURRENT_PATH}Electron-cmd-elevated.bat"'
+        `$Action= New-ScheduledTaskAction -Execute "cmd.exe" -Argument '/c start /min "" "{CURRENT_PATH}Electron-cmd-elevated.bat"'
       Register-ScheduledTask -TaskName "Electron-CMD-Elevated-Task" -Action $Action -RunLevel Highest -Force`
       );
+    }
+    if (!elevatedAddRunPsFileExist) {
       await window.api.saveScript(
         'Electron-powershell-elevated-Add-Run.ps1',
         `start-process powershell -argument {CURRENT_PATH}Electron-powershell-elevated-Add.ps1 -verb runas`
       );
+    }
+
+    let commandRes = await window.api.runCommand(
+      'SCHTASKS /Query /TN "Electron-CMD-Elevated-Task"',
+      'powershell'
+    );
+    
+    if (Error[Symbol.hasInstance](commandRes)) {
       await window.api.runScriptFile(
         'Electron-powershell-elevated-Add-Run',
         '.ps1'
@@ -64,19 +77,6 @@ function Actions() {
   };
 
   const handleSetIPWifi = async () => {
-    let batFileExist = await window.api.checkFileExist(
-      'Electron-cmd-elevated.bat'
-    );
-    let psFileExist = await window.api.checkFileExist(
-      'Electron-CMD-Elevated-Task.ps1'
-    );
-    if (batFileExist) {
-      await window.api.deleteFile('Electron-cmd-elevated.bat');
-    }
-    if (psFileExist) {
-      await window.api.deleteFile('Electron-CMD-Elevated-Task.ps1');
-    }
-
     await window.api.saveScript(
       'Electron-cmd-elevated.bat',
       `netsh interface ipv4 set address name="Wi-Fi" source=static ^

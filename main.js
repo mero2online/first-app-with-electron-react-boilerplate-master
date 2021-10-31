@@ -9,6 +9,9 @@ const path = require('path');
 const process = require('child_process');
 const fs = require('fs');
 
+const util = require('util');
+const execProm = util.promisify(process.exec);
+
 const isDev = !app.isPackaged;
 let win;
 
@@ -35,6 +38,7 @@ function createWindow() {
 if (isDev) {
   require('electron-reload')(__dirname, {
     electron: path.join(__dirname, 'node_modules', '.bin', 'electron'),
+    ignored: path.join(__dirname, 'src', 'scripts'),
   });
 }
 
@@ -63,7 +67,7 @@ ipcMain.handle('dark-mode:system', () => {
   nativeTheme.themeSource = 'system';
 });
 
-ipcMain.handle('check-file-exist', (event, fileName) => {
+ipcMain.handle('check-file-exist', async (event, fileName) => {
   let batPath = path.join(__dirname, `src/scripts/${fileName}`);
 
   if (fs.existsSync(batPath)) {
@@ -75,21 +79,23 @@ ipcMain.handle('check-file-exist', (event, fileName) => {
   }
 });
 
-ipcMain.handle('delete-file', (event, fileName) => {
+ipcMain.handle('delete-file', async (event, fileName) => {
+  console.log('delete-file');
   let batPath = path.join(__dirname, `src/scripts/${fileName}`);
 
-  fs.unlinkSync(batPath, function (err) {
+  await fs.promises.unlink(batPath, async (err) => {
     if (err) return console.log(err);
     console.log('file deleted successfully');
   });
   return 'deleted';
 });
 
-ipcMain.handle('save-script', (event, fileName, data) => {
+ipcMain.handle('save-script', async (event, fileName, data) => {
+  console.log('Save-script');
   let scriptsPath = path.join(__dirname, 'src/scripts/');
   let batPath = path.join(__dirname, `src/scripts/${fileName}`);
   const finalData = data.replaceAll('{CURRENT_PATH}', scriptsPath);
-  fs.writeFileSync(batPath, finalData);
+  await fs.promises.writeFile(batPath, finalData);
   return 'saved';
 });
 
@@ -97,18 +103,21 @@ ipcMain.handle('save-script', (event, fileName, data) => {
 // `schtasks.exe /run /tn "${batFileName}"`
 // `start-process powershell -argument ${batPath} -verb runas`;
 
-ipcMain.handle('run-command', (event, command, shell) => {
+ipcMain.handle('run-command', async (event, command, shell) => {
   let scriptsPath = path.join(__dirname, 'src/scripts/');
   const finalCommand = command.replaceAll('{CURRENT_PATH}', scriptsPath);
-  process.exec(finalCommand, { shell: shell }, (error, stdout, stderr) => {
-    console.log(stdout);
-    console.log(stderr);
-    console.log(error);
-  });
-  return 'finished';
+
+  let result;
+  try {
+    result = await execProm(finalCommand, { shell: shell });
+  } catch (err) {
+    result = err;
+  }
+
+  return result;
 });
 
-ipcMain.handle('run-script-file', (event, fileName, fileExtension) => {
+ipcMain.handle('run-script-file', async (event, fileName, fileExtension) => {
   let batPath = path.join(__dirname, `src/scripts/${fileName}${fileExtension}`);
   let ls =
     fileExtension === '.ps1'

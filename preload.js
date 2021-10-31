@@ -24,11 +24,16 @@ contextBridge.exposeInMainWorld('darkMode', {
 });
 
 contextBridge.exposeInMainWorld('api', {
-  checkFileExist: (...args) => ipcRenderer.invoke('check-file-exist', ...args),
-  deleteFile: (...args) => ipcRenderer.invoke('delete-file', ...args),
-  runScriptFile: (...args) => ipcRenderer.invoke('run-script-file', ...args),
-  saveScript: (...args) => ipcRenderer.invoke('save-script', ...args),
-  runCommand: (...args) => ipcRenderer.invoke('run-command', ...args),
+  checkFileExist: async (...args) =>
+    await ipcRenderer.invoke('check-file-exist', ...args),
+  deleteFile: async (...args) =>
+    await ipcRenderer.invoke('delete-file', ...args),
+  runScriptFile: async (...args) =>
+    await ipcRenderer.invoke('run-script-file', ...args),
+  saveScript: async (...args) =>
+    await ipcRenderer.invoke('save-script', ...args),
+  runCommand: async (...args) =>
+    await ipcRenderer.invoke('run-command', ...args),
   receive: (channel, func) => {
     if (channel === 'fromMain') {
       ipcRenderer.on(channel, (event, ...args) => func(...args));

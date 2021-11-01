@@ -132,6 +132,7 @@ ipcMain.handle('run-script-file', async (event, fileName, fileExtension) => {
   });
   ls.stderr.on('data', (data) => {
     const buf = Buffer.from(data, 'utf8').toString();
+    win.webContents.send('fromMain', { runBatStatus: `ERROR ${buf}` });
     console.log(buf);
   });
   ls.on('close', (code) => {

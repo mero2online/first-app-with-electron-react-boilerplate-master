@@ -69,6 +69,11 @@ function Actions() {
       );
     }
 
+    await window.api.runCommand(
+      `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`,
+      'powershell'
+    );
+
     let commandRes = await window.api.runCommand(
       'SCHTASKS /Query /TN "Electron-CMD-Elevated-Task"',
       'powershell'

@@ -24,12 +24,18 @@ function Actions() {
   };
 
   const handleRunBat = async () => {
+    await window.api.saveScript('script.bat', 'ipconfig /all\n'.repeat(30));
     await window.api.runScriptFile('script', '.bat');
   };
 
   const handleRunBatLock = async () => {
+    await window.api.saveScript(
+      'Lock-PC.bat',
+      `rundll32.exe user32.dll,LockWorkStation`
+    );
     await window.api.runScriptFile('Lock-PC', '.bat');
   };
+
   useEffect(() => {
     checkTask();
     console.log('mounted');
@@ -67,7 +73,7 @@ function Actions() {
       'SCHTASKS /Query /TN "Electron-CMD-Elevated-Task"',
       'powershell'
     );
-    
+
     if (Error[Symbol.hasInstance](commandRes)) {
       await window.api.runScriptFile(
         'Electron-powershell-elevated-Add-Run',

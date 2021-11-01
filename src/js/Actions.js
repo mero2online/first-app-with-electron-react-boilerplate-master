@@ -65,7 +65,7 @@ function Actions() {
     if (!elevatedAddRunPsFileExist) {
       await window.api.saveScript(
         'Electron-powershell-elevated-Add-Run.ps1',
-        `start-process powershell -argument {CURRENT_PATH}Electron-powershell-elevated-Add.ps1 -verb runas`
+        `start-process -WindowStyle Minimized powershell -argument "{CURRENT_PATH}Electron-powershell-elevated-Add.ps1" -verb runas`
       );
     }
 

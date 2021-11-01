@@ -8,7 +8,10 @@
     "watch": "webpack --config webpack.common.js --watch",
     "start": "electron-forge start",
     "package": "electron-forge package",
-    "make": "electron-forge make"
+    "make": "electron-forge make",
+    "delete": "rimraf src/scripts/*",
+    "start-delete": "npm run delete && npm start",
+    "make-delete": "npm run delete && npm run make"
   },
   "keywords": [],
   "author": "mero2online",
@@ -39,13 +42,16 @@
   },
   "config": {
     "forge": {
-      "packagerConfig": {},
+      "packagerConfig": {
+        "icon": "src/media/app.ico"
+      },
       "makers": [
         {
           "name": "@electron-forge/maker-squirrel",
           "config": {
             "name": "name_electron_react_app",
             "title": "title_electron_react_app",
+            "setupIcon": "src/media/app.ico",
             "loadingGif": "src/media/loading.gif"
           }
         },

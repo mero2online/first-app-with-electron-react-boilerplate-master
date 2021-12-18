@@ -11,6 +11,7 @@ const fs = require('fs');
 
 const util = require('util');
 const execProm = util.promisify(process.exec);
+const { dialog } = require('electron');
 
 const isDev = !app.isPackaged;
 let win;
@@ -25,6 +26,7 @@ function createWindow() {
       worldSafeExecuteJavaScript: true,
       contextIsolation: true,
       preload: path.join(__dirname, 'preload.js'),
+      enableRemoteModule: true,
     },
     icon: path.join(__dirname, 'src/media/app.ico'),
   });
@@ -65,6 +67,12 @@ ipcMain.handle('dark-mode:toggle', () => {
 
 ipcMain.handle('dark-mode:system', () => {
   nativeTheme.themeSource = 'system';
+});
+
+ipcMain.handle('get-Path', async() => {
+  const path = await dialog.showOpenDialog({ properties: ['openDirectory'] });
+  console.log(path);
+  return path;
 });
 
 ipcMain.handle('check-file-exist', async (event, fileName) => {

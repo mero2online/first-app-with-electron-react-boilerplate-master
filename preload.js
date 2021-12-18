@@ -24,6 +24,8 @@ contextBridge.exposeInMainWorld('darkMode', {
 });
 
 contextBridge.exposeInMainWorld('api', {
+  getPath: async (...args) =>
+    await ipcRenderer.invoke('get-Path', ...args),
   checkFileExist: async (...args) =>
     await ipcRenderer.invoke('check-file-exist', ...args),
   deleteFile: async (...args) =>

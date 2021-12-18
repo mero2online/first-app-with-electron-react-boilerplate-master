@@ -105,6 +105,11 @@ function Actions() {
     await window.api.runScriptFile('Electron-CMD-Elevated-Task', '.ps1');
   };
 
+  const handleGetPath = async () => {
+    let path = await window.api.getPath();
+    console.log(path);
+  };
+
   return (
     <div className='container mt-3'>
       <button
@@ -141,6 +146,13 @@ function Actions() {
         onClick={handleSetIPWifi}
       >
         Run Bat Set IP WiFi
+      </button>
+      <button
+        type='button'
+        className='btn btn-primary ms-3'
+        onClick={handleGetPath}
+      >
+        Get Path
       </button>
       <h2>{result}</h2>
     </div>
